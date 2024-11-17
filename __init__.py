@@ -27,7 +27,7 @@ elif os.name == 'nt':
 plt.rcParams['axes.unicode_minus'] = 'False'
 
 # 손실 계산용
-def eval_loss(loader, net, criterion, device=device):
+def eval_loss(loader, device, net, criterion):
   
     # 데이터로더에서 처음 한 개 세트를 가져옴
     for images, labels in loader:
@@ -46,7 +46,7 @@ def eval_loss(loader, net, criterion, device=device):
     return loss
 
 # 학습용 함수
-def fit(net, optimizer, criterion, num_epochs, train_loader, test_loader, history, device=device):
+def fit(net, optimizer, criterion, num_epochs, train_loader, test_loader, device, history):
 
     # tqdm 라이브러리 임포트
     from tqdm import tqdm
@@ -127,8 +127,8 @@ def fit(net, optimizer, criterion, num_epochs, train_loader, test_loader, histor
 
 def evaluate_history(history):
     # 손실과 정확도 확인
-    print(f'초기상태 : 손실 : {history[0,3]:.5f}  정확도 : {history[0,4]:.5f}') 
-    print(f'최종상태 : 손실 : {history[-1,3]:.5f}  정확도 : {history[-1,4]:.5f}' )
+    print(f'초기상태 : 손실 : {history[0,3]:.5f}  정확도 : {history[0,4]:.4f}') 
+    print(f'최종상태 : 손실 : {history[-1,3]:.5f}  정확도 : {history[-1,4]:.4f}' )
 
     num_epochs = len(history)
     unit = num_epochs / 10
@@ -156,7 +156,7 @@ def evaluate_history(history):
     plt.show()
 
 # 이미지와 라벨 표시
-def show_images_labels(loader, classes, net, device=device):
+def show_images_labels(loader, classes, net, device):
 
     # 데이터로더에서 처음 1세트를 가져오기
     for images, labels in loader:
@@ -202,8 +202,21 @@ def show_images_labels(loader, classes, net, device=device):
         ax.set_axis_off()
     plt.show()
 
-# 파이토치 난수 고정
+# 모델 가중치 저장
+def save_weights(net):
+   torch.save(net.state_dict(), 'model_weights.pth')
 
+# 모델 가중치 불러오기
+def load_weights(net, path='model_weights.pth'):
+   net.load_state_dict(torch.load(path))
+   
+# 모델 가중치 확인
+def show_weights(net):
+    for name, param in net.state_dict().items():
+        print(f"Layer: {name} | Shape: {param.shape}")
+        print(param)
+
+# 파이토치 난수 고정
 def torch_seed(seed=123):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
